@@ -10,7 +10,17 @@ Windows、Mac 直接下载安装包；手机和平板前往 [官网下载页](ht
 | Mac / macOS | 1.2.3 | [下载 DMG](https://github.com/rrtvdev/rrtv/releases/download/v1.2.3/rrtv-mac-1.2.3.dmg) |
 | 安卓、iPhone、iPad 等手机和平板 | 以官网为准 | [前往官网下载和安装](https://rrsp.app/) |
 
-电脑端下载后打开安装包，按提示安装。以上为本仓库收录版本。
+以上为本仓库收录版本。Mac 下载后打开 DMG，按提示安装。
+
+### Windows 静默安装
+
+下载 EXE 后，在安装包所在目录打开 PowerShell，执行：
+
+```powershell
+Start-Process -FilePath ".\rrtv-windows-1.25.0.exe" -ArgumentList "/S" -Verb RunAs -Wait
+```
+
+`/S` 必须大写；此包使用 NSIS 安装器。安装需要管理员权限，如弹出 Windows 授权提示，请确认后等待安装结束。[静默参数说明](https://nsis.sourceforge.io/Docs/Chapter3.html#installerusage)。
 
 ## 一句话获取
 
@@ -18,7 +28,7 @@ Windows、Mac 直接下载安装包；手机和平板前往 [官网下载页](ht
 帮我把 GitHub 上的 rrtvdev 的 rrtv 安装包安装到本机。
 ```
 
-大模型按用户要安装的设备处理：Windows 或 Mac 下载对应安装包；手机或平板返回官网下载页，提示用户前往下载和安装。无法判断设备时先询问，不把云端 AI 的运行系统当成用户设备。
+大模型按用户要安装的设备处理：Windows 下载对应 EXE 后使用 `/S` 静默安装，Mac 下载对应 DMG 并提示打开安装；手机或平板返回官网下载页，提示用户前往下载和安装。无法判断设备时先询问，不把云端 AI 的运行系统当成用户设备。仅要求下载时不运行安装器；无法在用户 Windows 设备执行时，提供下载链接和上面的命令。
 
 ## 推荐安装本地 Skill
 
@@ -34,6 +44,6 @@ Windows、Mac 直接下载安装包；手机和平板前往 [官网下载页](ht
 
 固定仓库：[rrtvdev/rrtv](https://github.com/rrtvdev/rrtv) · [版本和下载地址 JSON](https://raw.githubusercontent.com/rrtvdev/rrtv/main/downloads.json)
 
-移动端统一返回官网下载页。电脑端按系统选择：指定版本时匹配该系统的 `version`（Windows 构建号可匹配 `file_version`）；未指定时使用 `latest_by_platform`，直接下载该记录的 `download_url`。未收录的版本需告知用户。安装包位于 Releases 附件中。
+移动端统一返回官网下载页。电脑端按系统选择：指定版本时匹配该系统的 `version`（Windows 构建号可匹配 `file_version`）；未指定时使用 `latest_by_platform`，直接下载该记录的 `download_url`。Windows 安装请求按该记录的 `install` 参数执行并等待结束；不要将下载完成当成安装完成。未收录的版本需告知用户。安装包位于 Releases 附件中。
 
 Windows 和安卓历史包来自官网下载，Mac 包来自用户提供的原始附件。本项目为安装包镜像与下载指引，软件及商标归原权利人所有。

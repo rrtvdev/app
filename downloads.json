@@ -9,13 +9,13 @@
     "macos": "rrtv-mac"
   },
   "selection_rules": [
-    "For a request to install on this device (本机/安装到本机), identify the user target device from their explicit statement, trusted device context, or tools confirmed to run on that device. Never infer the user device from an AI cloud, server, or container OS. If unknown, ask whether the target is a phone/tablet or a Windows/Mac computer. Mobile targets use mobile_download even when agent tools run on a desktop. For desktop targets, download the installer directly; this skill does not automatically run installers.",
+    "For a request to install on this device (本机/安装到本机), identify the user target device from their explicit statement, trusted device context, or tools confirmed to run on that device. Never infer the user device from an AI cloud, server, or container OS. If unknown, ask whether the target is a phone/tablet or a Windows/Mac computer. Mobile targets use mobile_download even when agent tools run on a desktop. For desktop targets, download the matching installer. When the user asks to install on Windows and tools run on that target device, use the selected record install.silent_arguments for silent installation; download-only requests do not run an installer. On Mac, provide the DMG and opening instructions.",
     "For mobile, phone, tablet, Android, or iOS requests, return mobile_download.url and mobile_download.message. Do not download an APK or enter the desktop file-selection flow. A generic mobile request does not require asking Android versus iOS; a requested mobile version is not a guarantee of availability on the official page.",
     "For desktop requests, match windows or macos first. Ask whether the target is mobile or desktop if the device is missing. The phrase computer/desktop version alone is ambiguous between Windows and macOS; ask which system. The files array preserves archived package metadata, including Android; it does not override mobile_download.",
     "For a requested version, match within the same operating system. Match Windows file_version when a four-component build is requested.",
     "If no version is specified, resolve latest_by_platform for that operating system. Never compare version numbers across platforms or use the repository-wide releases/latest endpoint.",
     "Download the chosen record download_url directly. No file-size or SHA-256 verification step is required. Do not substitute another platform or invent an unavailable version.",
-    "Report a download only after the download tool reports completion. If the user target device cannot be reached, return the direct link without claiming the file was saved there. Do not automatically run installers.",
+    "Report a download only after the download tool reports completion. If the user target device cannot be reached, return the direct link and, for Windows installation requests, the silent installation command without claiming that download or installation happened there. For Windows installation requests, use install.silent_arguments (case-sensitive /S for this NSIS package), request administrator elevation when required, and wait for the installer to finish. Report its actual outcome; a started process or completed download is not a completed installation. If silent-install metadata is absent, do not guess arguments. Never run installers for download-only requests.",
     "Unknown architecture and OS compatibility must remain unknown; do not promise compatibility."
   ],
   "files": [
@@ -30,7 +30,17 @@
       "download_url": "https://github.com/rrtvdev/rrtv/releases/download/windows-v1.25.0/rrtv-windows-1.25.0.exe",
       "release_url": "https://github.com/rrtvdev/rrtv/releases/tag/windows-v1.25.0",
       "source_kind": "official_website",
-      "source_url": "https://rrsp.app/"
+      "source_url": "https://rrsp.app/",
+      "install": {
+        "type": "nsis",
+        "mode": "silent",
+        "silent_arguments": [
+          "/S"
+        ],
+        "requires_admin": true,
+        "wait_for_exit": true,
+        "documentation_url": "https://nsis.sourceforge.io/Docs/Chapter3.html#installerusage"
+      }
     },
     {
       "id": "rrtv-android-10.40.2",
