@@ -1,11 +1,11 @@
 ---
 name: rrtv-download
-description: Find or download 人人视频 (RRTV) installers for Windows or Mac, and guide Android/iOS users to the official download page. Use for download or install requests, including “安装到本机”. Not for video downloads or backend development.
+description: Download 人人视频 (RRTV) installers, silently install the Windows version when requested, and guide Android/iOS users to the official download page. Use for download or install requests, including “安装到本机”. Not for video downloads or backend development.
 ---
 
 # 人人视频安装包下载
 
-固定项目：https://github.com/rrtvdev/rrtv 。直接提供或下载安装包。
+固定项目：https://github.com/rrtvdev/rrtv 。提供或下载安装包；用户要求安装 Windows 版时使用静默参数执行安装。
 
 ## 判断用户设备
 
@@ -32,8 +32,21 @@ description: Find or download 人人视频 (RRTV) installers for Windows or Mac,
 - 未指定版本时，用 `latest_by_platform[os]` 找到对应 `id`。这里的最新仅指仓库收录版本，不跨系统比较版本号，也不使用仓库级 `releases/latest` 选包。
 - 直接使用该记录的 `download_url`。链接应指向 `https://github.com/rrtvdev/rrtv/releases/download/` 下的安装包附件。
 
-用户要链接时给可点击的下载地址；要求下载时保存到指定位置，否则使用用户目标设备的下载目录。同名文件另存，避免覆盖。下载工具报告完成后，简短返回平台、版本和实际保存路径，提示用户打开安装包安装。
+用户要链接时给可点击的下载地址；要求下载时保存到指定位置，否则使用用户目标设备的下载目录。同名文件另存，避免覆盖。下载工具报告完成后，按请求处理：仅要下载则返回平台、版本和实际保存路径；Windows 安装请求继续下面的静默安装步骤；Mac 提示打开 DMG 安装。
 
-不执行大小或 SHA-256 校验，不要求用户运行校验命令。下载失败就说明失败；无法在用户设备上保存时给直链，不声称已下载到用户本机。本 Skill 不自动运行安装器。
+不执行大小或 SHA-256 校验，不要求用户运行校验命令。下载失败就说明失败；无法在用户设备上保存时给直链，不声称已下载到用户本机。仅要求下载时不运行安装器。
+
+### Windows 静默安装
+
+用户要求安装 Windows 版，且工具已确认运行在用户目标 Windows 设备上时，下载后按该记录的 `install.silent_arguments` 执行安装。当前 1.25.0 为 NSIS，参数是大写 `/S`。使用实际保存路径，不假定文件仍使用原始名称。例如 PowerShell 中 `$installer` 为下载所得 EXE 的完整路径：
+
+```powershell
+$process = Start-Process -FilePath $installer -ArgumentList "/S" -Verb RunAs -Wait -PassThru
+$process.ExitCode
+```
+
+此包要求管理员权限；如出现 Windows 授权提示，需用户确认。等待安装器结束，根据退出码和可观察的安装结果报告成功、失败或尚无法确认；不能仅凭下载完成或进程启动就声称安装完成。用户取消授权或安装失败时说明实际结果，不自动重复安装。
+
+无法在用户目标 Windows 设备执行时，给下载链接及使用其文件路径的静默安装命令，不声称已安装。新版本没有 `install` 静默参数时不要猜测参数。[NSIS 参数文档](https://nsis.sourceforge.io/Docs/Chapter3.html#installerusage)。
 
 清单无法读取时提供固定仓库链接并说明原因，不猜测版本或链接。安装包来源以清单为准；未知的架构和兼容性不作承诺。新增版本读取仓库清单即可，Skill 规则更新需要更新本地副本。
