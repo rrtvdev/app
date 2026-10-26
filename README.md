@@ -38,10 +38,10 @@ Start-Process -FilePath ".\rrtv-windows-1.25.0.exe" -ArgumentList "/S" -Verb Run
 
 ## 推荐安装本地 Skill
 
-安装 [rrtv-download](skills/rrtv-download/SKILL.md)，让大模型固定从本项目获取安装包。在 Codex 中复制：
+安装 [rrtv-download](skills/rrtv-download/SKILL.md)，让大模型固定从本项目获取安装包。
 
 ```text
-请使用 $skill-installer，将 https://github.com/rrtvdev/rrtv/tree/main/skills/rrtv-download 安装到本地。
+将 https://github.com/rrtvdev/rrtv/tree/main/skills/rrtv-download 安装到本地。
 ```
 
 加载后可直接说“下载人人视频 Windows 版”，也可用 `$rrtv-download` 明确调用。已安装旧版 Skill 的用户需更新本地副本。
