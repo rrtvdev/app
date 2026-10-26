@@ -1,11 +1,11 @@
 ---
 name: rrtv-download
-description: Download 人人视频 (RRTV) installers, install Windows silently or copy the Mac app into Applications when requested, and guide Android/iOS users to the official download page. Use for download or install requests, including “安装到本机”. Not for video downloads or backend development.
+description: Download 人人视频 (RRTV) installers, install Windows silently or copy the Mac app into Applications when requested, launch the installed desktop app after successful installation, and guide Android/iOS users to the official download page. Use for download or install requests, including “安装到本机”. Not for video downloads or backend development.
 ---
 
 # 人人视频安装包下载
 
-固定项目：https://github.com/rrtvdev/rrtv 。提供或下载安装包；用户要求安装时，Windows 使用静默参数，Mac 自动挂载 DMG 并复制应用完成安装。
+固定项目：https://github.com/rrtvdev/rrtv 。提供或下载安装包；用户要求安装时，Windows 使用静默参数，Mac 自动挂载 DMG 并复制应用完成安装，随后自动打开已安装的应用一次。
 
 ## 判断用户设备
 
@@ -45,7 +45,7 @@ $process = Start-Process -FilePath $installer -ArgumentList "/S" -Verb RunAs -Wa
 $process.ExitCode
 ```
 
-此包要求管理员权限；如出现 Windows 授权提示，需用户确认。等待安装器结束，根据退出码和可观察的安装结果报告成功、失败或尚无法确认；不能仅凭下载完成或进程启动就声称安装完成。用户取消授权或安装失败时说明实际结果，不自动重复安装。
+此包要求管理员权限；如出现 Windows 授权提示，需用户确认。等待安装器结束，根据退出码和可观察的安装结果报告成功、失败或尚无法确认；不能仅凭下载完成或进程启动就声称安装完成。用户取消授权或安装失败时说明实际结果，不自动重复安装。确认安装成功后继续“安装后自动打开”，不再让用户手动找图标。
 
 无法在用户目标 Windows 设备执行时，给下载链接及使用其文件路径的静默安装命令，不声称已安装。新版本没有 `install` 静默参数时不要猜测参数。[NSIS 参数文档](https://nsis.sourceforge.io/Docs/Chapter3.html#installerusage)。
 
@@ -61,9 +61,30 @@ $process.ExitCode
    ditto "$mount_point/人人视频 for Mac.app" "$target_dir/人人视频 for Mac.app"
    ```
 
-   安装前检查目标同名应用；Bundle ID、版本和构建号均相同时，直接复用并返回路径。旧版同一应用需要更新时，先关闭运行中的应用并将旧 Bundle 移到唯一备份路径，再复制新 Bundle，避免直接叠加覆盖旧文件。不要删除用户数据；复制失败则移开本次不完整副本并恢复备份。不同 Bundle ID 的同名应用不覆盖，说明冲突。
+   安装前检查目标同名应用；Bundle ID、版本和构建号均相同时，直接复用并继续“安装后自动打开”。旧版同一应用需要更新时，先关闭运行中的应用并将旧 Bundle 移到唯一备份路径，再复制新 Bundle，避免直接叠加覆盖旧文件。不要删除用户数据；复制失败则移开本次不完整副本并恢复备份。不同 Bundle ID 的同名应用不覆盖，说明冲突。
 4. 确认复制命令成功且目标应用存在，读取目标 `Info.plist` 确认名称、Bundle ID 和版本后报告实际安装路径。无论复制成功或失败，都用 `hdiutil detach "$mount_point"` 卸载本次镜像；卸载失败则说明实际情况，不强制卸载其他卷。
 
-保留 macOS 安全属性和系统检查，不清除隔离属性、不关闭 Gatekeeper。安装完成后不自动启动应用；用户要求打开时再打开。若系统不兼容、操作失败或无法在用户目标 Mac 执行，说明具体原因并提供下载链接/操作步骤，不声称已安装。后续版本按清单里的应用名称和安装方式处理，不猜测缺失的 `install` 配置。
+保留 macOS 安全属性和系统检查，不清除隔离属性、不关闭 Gatekeeper。安装成功后继续“安装后自动打开”，使用已经复制到目标目录的应用，不从挂载镜像启动。若系统不兼容、操作失败或无法在用户目标 Mac 执行，说明具体原因并提供下载链接/操作步骤，不声称已安装。后续版本按清单里的应用名称和安装方式处理，不猜测缺失的 `install` 配置。
+
+### 安装后自动打开
+
+Windows 和 Mac 安装成功后，默认在用户目标设备上打开应用一次；复用已安装的相同版本时也执行此步骤。这里不设置开机或登录自启动，不添加登录项、启动文件夹或计划任务。用户明确要求安装后不要打开时跳过；仅要链接或下载、安装失败、目标设备不可访问时不启动。
+
+- Windows：在安装生成的用户或公共开始菜单、桌面快捷方式中定位人人视频，读取其实际目标确认是已安装应用，排除安装器、卸载器和更新入口；如果没有快捷方式，可从该应用安装信息中确认主程序路径，不猜测 EXE 名称或安装目录；入口缺失或不唯一时说明问题。在普通用户 PowerShell/桌面会话中打开该快捷方式，例如 `$shortcutPath` 为已确认的 `.lnk` 完整路径：
+
+  ```powershell
+  Start-Process -FilePath $shortcutPath
+  ```
+
+  应用启动不使用安装时的 `-Verb RunAs`。如果安装器已经启动应用或应用已在运行，复用现有实例，不重复启动。
+- Mac：用实际安装路径打开应用，包括回退到用户 `~/Applications` 或复用既有安装的情况。`$target_dir` 必须是已展开的绝对路径：
+
+  ```sh
+  open "$target_dir/人人视频 for Mac.app"
+  ```
+
+  不使用 `open -n` 创建重复实例，不以管理员身份启动应用。
+
+根据实际窗口或进程状态确认是否已打开，分别报告安装路径与启动结果。若启动失败、找不到入口或出现系统首次打开确认，说明“已安装，启动尚未完成”和具体原因；保留系统安全检查，不重复安装、不声称已启动。
 
 清单无法读取时提供固定仓库链接并说明原因，不猜测版本或链接。安装包来源以清单为准；未知的架构和兼容性不作承诺。新增版本读取仓库清单即可，Skill 规则更新需要更新本地副本。
