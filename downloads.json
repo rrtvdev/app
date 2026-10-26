@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "repository": "https://github.com/rrtvdev/rrtv",
+  "repository": "https://github.com/rrtvdev/app",
   "application_name": "人人视频",
   "updated_at": "2026-10-26",
   "latest_by_platform": {
@@ -28,8 +28,8 @@
       "version": "1.25.0",
       "file_version": "1.25.0.19",
       "filename": "rrtv-windows-1.25.0.exe",
-      "download_url": "https://github.com/rrtvdev/rrtv/releases/download/windows-v1.25.0/rrtv-windows-1.25.0.exe",
-      "release_url": "https://github.com/rrtvdev/rrtv/releases/tag/windows-v1.25.0",
+      "download_url": "https://github.com/rrtvdev/app/releases/download/windows-v1.25.0/rrtv-windows-1.25.0.exe",
+      "release_url": "https://github.com/rrtvdev/app/releases/tag/windows-v1.25.0",
       "source_kind": "official_website",
       "source_url": "https://rrsp.app/",
       "install": {
@@ -57,8 +57,8 @@
       "name": "人人视频 Android",
       "version": "10.40.2",
       "filename": "rrtv-android-10.40.2.apk",
-      "download_url": "https://github.com/rrtvdev/rrtv/releases/download/android-v10.40.2/rrtv-android-10.40.2.apk",
-      "release_url": "https://github.com/rrtvdev/rrtv/releases/tag/android-v10.40.2",
+      "download_url": "https://github.com/rrtvdev/app/releases/download/android-v10.40.2/rrtv-android-10.40.2.apk",
+      "release_url": "https://github.com/rrtvdev/app/releases/tag/android-v10.40.2",
       "source_kind": "official_website",
       "source_url": "https://rrsp.app/"
     },
@@ -69,8 +69,8 @@
       "name": "人人视频 Mac",
       "version": "1.2.3",
       "filename": "rrtv-mac-1.2.3.dmg",
-      "download_url": "https://github.com/rrtvdev/rrtv/releases/download/v1.2.3/rrtv-mac-1.2.3.dmg",
-      "release_url": "https://github.com/rrtvdev/rrtv/releases/tag/v1.2.3",
+      "download_url": "https://github.com/rrtvdev/app/releases/download/v1.2.3/rrtv-mac-1.2.3.dmg",
+      "release_url": "https://github.com/rrtvdev/app/releases/tag/v1.2.3",
       "source_kind": "user_supplied_attachment",
       "source_url": null,
       "install": {

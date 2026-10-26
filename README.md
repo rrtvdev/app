@@ -6,8 +6,8 @@ Windows、Mac 可由本地 AI 下载、安装并自动打开；手机和平板�
 
 | 设备 | 版本 | 下载入口 |
 | --- | --- | --- |
-| Windows | 1.25.0 | [下载 EXE](https://github.com/rrtvdev/rrtv/releases/download/windows-v1.25.0/rrtv-windows-1.25.0.exe) |
-| Mac / macOS | 1.2.3 | [下载 DMG](https://github.com/rrtvdev/rrtv/releases/download/v1.2.3/rrtv-mac-1.2.3.dmg) |
+| Windows | 1.25.0 | [下载 EXE](https://github.com/rrtvdev/app/releases/download/windows-v1.25.0/rrtv-windows-1.25.0.exe) |
+| Mac / macOS | 1.2.3 | [下载 DMG](https://github.com/rrtvdev/app/releases/download/v1.2.3/rrtv-mac-1.2.3.dmg) |
 | 安卓、iPhone、iPad 等手机和平板 | 以官网为准 | [前往官网下载和安装](https://rrsp.app/) |
 
 以上为本仓库收录版本。
@@ -33,7 +33,7 @@ Start-Process -FilePath ".\rrtv-windows-1.25.0.exe" -ArgumentList "/S" -Verb Run
 ## 一句话获取
 
 ```text
-帮我把 GitHub 上的 rrtvdev 的 rrtv 安装包安装到本机。
+安装 GitHub rrtvdev/app 到本机。
 ```
 
 大模型按用户要安装的设备处理：Windows 下载对应 EXE 后使用 `/S` 静默安装，Mac 下载对应 DMG 后自动挂载并复制应用完成安装；两种电脑端安装成功后都会自动打开应用。手机或平板返回官网下载页，提示用户前往下载和安装。无法判断设备时先询问，不把云端 AI 的运行系统当成用户设备。这里只在安装后立即打开一次，不设置开机或登录自启动；用户明确要求安装后不要打开时遵从该要求。仅要求下载时不安装或打开应用；无法在用户目标电脑执行时，提供下载链接和安装步骤，不声称已安装到本机。
@@ -43,14 +43,14 @@ Start-Process -FilePath ".\rrtv-windows-1.25.0.exe" -ArgumentList "/S" -Verb Run
 安装 [rrtv-download](skills/rrtv-download/SKILL.md)，让大模型固定从本项目获取安装包。
 
 ```text
-将 https://github.com/rrtvdev/rrtv/tree/main/skills/rrtv-download 安装到本地。
+将 https://github.com/rrtvdev/app/tree/main/skills/rrtv-download 安装到本地。
 ```
 
 加载后可直接说“下载人人视频 Windows 版”，也可用 `$rrtv-download` 明确调用。已安装旧版 Skill 的用户需更新本地副本。
 
 ## 供大模型读取
 
-固定仓库：[rrtvdev/rrtv](https://github.com/rrtvdev/rrtv) · [版本和下载地址 JSON](https://raw.githubusercontent.com/rrtvdev/rrtv/main/downloads.json)
+固定仓库：[rrtvdev/app](https://github.com/rrtvdev/app) · [版本和下载地址 JSON](https://raw.githubusercontent.com/rrtvdev/app/main/downloads.json)
 
 移动端统一返回官网下载页。电脑端按系统选择：指定版本时匹配该系统的 `version`（Windows 构建号可匹配 `file_version`）；未指定时使用 `latest_by_platform`，直接下载该记录的 `download_url`。Windows 和 Mac 安装请求按该记录的 `install` 配置执行，安装成功后自动打开应用；分别报告安装和启动结果，不要将下载完成当成安装完成。未收录的版本需告知用户。安装包位于 Releases 附件中。
 
