@@ -1,11 +1,11 @@
 ---
 name: rrtv-download
-description: Download 人人视频 (RRTV) installers, silently install the Windows version when requested, and guide Android/iOS users to the official download page. Use for download or install requests, including “安装到本机”. Not for video downloads or backend development.
+description: Download 人人视频 (RRTV) installers, install Windows silently or copy the Mac app into Applications when requested, and guide Android/iOS users to the official download page. Use for download or install requests, including “安装到本机”. Not for video downloads or backend development.
 ---
 
 # 人人视频安装包下载
 
-固定项目：https://github.com/rrtvdev/rrtv 。提供或下载安装包；用户要求安装 Windows 版时使用静默参数执行安装。
+固定项目：https://github.com/rrtvdev/rrtv 。提供或下载安装包；用户要求安装时，Windows 使用静默参数，Mac 自动挂载 DMG 并复制应用完成安装。
 
 ## 判断用户设备
 
@@ -32,9 +32,9 @@ description: Download 人人视频 (RRTV) installers, silently install the Windo
 - 未指定版本时，用 `latest_by_platform[os]` 找到对应 `id`。这里的最新仅指仓库收录版本，不跨系统比较版本号，也不使用仓库级 `releases/latest` 选包。
 - 直接使用该记录的 `download_url`。链接应指向 `https://github.com/rrtvdev/rrtv/releases/download/` 下的安装包附件。
 
-用户要链接时给可点击的下载地址；要求下载时保存到指定位置，否则使用用户目标设备的下载目录。同名文件另存，避免覆盖。下载工具报告完成后，按请求处理：仅要下载则返回平台、版本和实际保存路径；Windows 安装请求继续下面的静默安装步骤；Mac 提示打开 DMG 安装。
+用户要链接时给可点击的下载地址；要求下载时保存到指定位置，否则使用用户目标设备的下载目录。同名文件另存，避免覆盖。下载工具报告完成后，按请求处理：仅要下载则返回平台、版本和实际保存路径；Windows 安装请求继续下面的静默安装步骤；Mac 安装请求继续下面的自动安装步骤。
 
-不执行大小或 SHA-256 校验，不要求用户运行校验命令。下载失败就说明失败；无法在用户设备上保存时给直链，不声称已下载到用户本机。仅要求下载时不运行安装器。
+不执行大小或 SHA-256 校验，不要求用户运行校验命令。下载失败就说明失败；无法在用户设备上保存时给直链，不声称已下载到用户本机。仅要求下载时不安装或启动应用。
 
 ### Windows 静默安装
 
@@ -48,5 +48,22 @@ $process.ExitCode
 此包要求管理员权限；如出现 Windows 授权提示，需用户确认。等待安装器结束，根据退出码和可观察的安装结果报告成功、失败或尚无法确认；不能仅凭下载完成或进程启动就声称安装完成。用户取消授权或安装失败时说明实际结果，不自动重复安装。
 
 无法在用户目标 Windows 设备执行时，给下载链接及使用其文件路径的静默安装命令，不声称已安装。新版本没有 `install` 静默参数时不要猜测参数。[NSIS 参数文档](https://nsis.sourceforge.io/Docs/Chapter3.html#installerusage)。
+
+### Mac 自动安装
+
+用户要求安装 Mac 版，且工具已确认运行在用户目标 Mac 上时，下载完成后继续安装，不停留在“请手动打开 DMG”。按该记录的 `install` 配置处理；当前包是 App 拷贝型 DMG，应用为 `人人视频 for Mac.app`，Bundle ID 为 `com.rrtv.www.RRTV-MAC`，版本为 `1.2.3`（构建 `1`），要求 macOS 12.0 或更新版本。
+
+1. 使用实际下载路径。确认系统满足 `minimum_macos`，默认目标目录为 `/Applications`；该目录不可写时，创建并使用用户的 `~/Applications`，不为此自动提权。清单中的 `~` 必须先展开为目标用户主目录的绝对路径，再赋给 `$target_dir`；不要把含字面量 `~` 的变量传给复制命令。
+2. 用 `hdiutil attach -readonly -nobrowse -noautoopen -plist "$dmg"` 挂载，从返回的 plist 读取本次镜像的实际挂载点，不硬编码 `/Volumes` 下的名称。定位 `install.app_bundle`，不执行镜像中其他文件。
+3. 将应用复制到目标目录。下面的 `$mount_point` 和 `$target_dir` 分别为本次实际挂载点、选定的安装目录：
+
+   ```sh
+   ditto "$mount_point/人人视频 for Mac.app" "$target_dir/人人视频 for Mac.app"
+   ```
+
+   安装前检查目标同名应用；Bundle ID、版本和构建号均相同时，直接复用并返回路径。旧版同一应用需要更新时，先关闭运行中的应用并将旧 Bundle 移到唯一备份路径，再复制新 Bundle，避免直接叠加覆盖旧文件。不要删除用户数据；复制失败则移开本次不完整副本并恢复备份。不同 Bundle ID 的同名应用不覆盖，说明冲突。
+4. 确认复制命令成功且目标应用存在，读取目标 `Info.plist` 确认名称、Bundle ID 和版本后报告实际安装路径。无论复制成功或失败，都用 `hdiutil detach "$mount_point"` 卸载本次镜像；卸载失败则说明实际情况，不强制卸载其他卷。
+
+保留 macOS 安全属性和系统检查，不清除隔离属性、不关闭 Gatekeeper。安装完成后不自动启动应用；用户要求打开时再打开。若系统不兼容、操作失败或无法在用户目标 Mac 执行，说明具体原因并提供下载链接/操作步骤，不声称已安装。后续版本按清单里的应用名称和安装方式处理，不猜测缺失的 `install` 配置。
 
 清单无法读取时提供固定仓库链接并说明原因，不猜测版本或链接。安装包来源以清单为准；未知的架构和兼容性不作承诺。新增版本读取仓库清单即可，Skill 规则更新需要更新本地副本。
